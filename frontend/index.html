@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FlightPath</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <div class="logo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg></div>
+    <div>
+      <h1>Flight<span>Path</span></h1>
+      <p>Find the shortest, fastest or cheapest itinerary across 28 Indian airports, and watch the algorithm search.</p>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="tab-planner" aria-selected="true" aria-controls="planner">Planner</button>
+    <button role="tab" id="tab-analysis" aria-selected="false" aria-controls="analysis">Algorithm analysis</button>
+  </nav>
+</header>
+
+<main id="planner" class="planner">
+  <section class="chart" aria-label="Route map">
+    <div class="toolbar">
+      <div class="seg" role="group" aria-label="Map click action">
+        <button type="button" data-mode="pick" aria-pressed="true">Pick airports</button>
+        <button type="button" data-mode="close" aria-pressed="false">Close airports</button>
+      </div>
+      <span id="hint" class="hint">Click an airport to set the origin, then another for the destination.</span>
+    </div>
+    <svg id="map" viewBox="0 0 620 660" role="img" aria-label="Map of the flight network"></svg>
+    <ul class="key" aria-hidden="true">
+      <li><i class="k-route"></i>Chosen route</li>
+      <li><i class="k-seen"></i>Searched by the algorithm</li>
+      <li><i class="k-closed"></i>Closed airport</li>
+    </ul>
+  </section>
+
+  <aside class="panel">
+    <div class="controls">
+      <label>From <select id="src"></select></label>
+      <button type="button" id="swap" class="swap" aria-label="Swap origin and destination" title="Swap">&#8644;</button>
+      <label>To <select id="dst"></select></label>
+      <fieldset class="metric">
+        <legend>Optimise for</legend>
+        <label><input type="radio" name="metric" value="distance" checked> Distance</label>
+        <label><input type="radio" name="metric" value="time"> Time</label>
+        <label><input type="radio" name="metric" value="cost"> Fare</label>
+      </fieldset>
+      <label class="algo">Algorithm
+        <select id="algo">
+          <option value="dijkstra">Dijkstra</option>
+          <option value="floyd_warshall">Floyd-Warshall</option>
+          <option value="bfs">BFS (fewest flights)</option>
+        </select>
+      </label>
+      <button type="button" id="run" class="run">Find route</button>
+    </div>
+    <p id="status" role="status" aria-live="polite"></p>
+    <div id="result"></div>
+    <div id="alts"></div>
+    <div id="compare"></div>
+  </aside>
+</main>
+
+<main id="analysis" class="analysis" hidden>
+  <h2>How the algorithms compare</h2>
+  <div class="scroll">
+  <table class="data">
+    <thead><tr><th>Algorithm</th><th>Technique</th><th>Time</th><th>Space</th><th>Used here for</th></tr></thead>
+    <tbody>
+      <tr><td>Dijkstra</td><td>Greedy, min-heap</td><td>O((V+E) log V)</td><td>O(V)</td><td>Default single-pair search; weights are never negative</td></tr>
+      <tr><td>Floyd-Warshall</td><td>Dynamic programming</td><td>O(V³)</td><td>O(V²)</td><td>All airport pairs at once; overkill for one query</td></tr>
+      <tr><td>BFS</td><td>Graph traversal</td><td>O(V+E)</td><td>O(V)</td><td>Fewest flights, ignoring distance, time and fare</td></tr>
+      <tr><td>Yen's K-shortest</td><td>Repeated Dijkstra</td><td>O(K·V·(E+V log V))</td><td>O(K·V)</td><td>The alternative routes listed under each result</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>Measured growth on random networks</h2>
+  <p class="lede">Average edge relaxations (or inner-loop steps) over 15 random queries on random networks with about 3 routes per airport. Both axes are logarithmic.</p>
+  <button type="button" id="bench" class="run">Run benchmark</button>
+  <p id="bench-status" role="status" aria-live="polite"></p>
+  <div id="chart-wrap"></div>
+  <div id="bench-table" class="scroll"></div>
+</main>
+
+<script src="js/app.js"></script>
+</body>
+</html>
